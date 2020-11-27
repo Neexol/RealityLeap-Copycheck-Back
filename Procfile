@@ -1,0 +1,1 @@
+web:    java -jar build/libs/copycheck-0.1.jar
