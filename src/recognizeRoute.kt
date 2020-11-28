@@ -43,6 +43,9 @@ fun Route.recognizeRoute(uploadDir: File) {
         val songUrl = "http://copycheck.herokuapp.com/music/$receivedFileName"
 
         println("SONG_URL: $songUrl")
+        println("EXISTS: ${receivedFile!!.exists()}")
+        println("FILES: ${uploadDir.listFiles().joinToString(" | ") { it.name }}")
+
 
         call.respond(recognizeSong(songUrl))
 
