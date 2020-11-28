@@ -18,7 +18,7 @@ import java.io.OutputStream
 fun Route.recognizeRoute(uploadDir: File) {
     post("/recognize") {
         val multipart = call.receiveMultipart()
-        var receivedFile: File? = null
+        var receivedFile = File("")
         var receivedFileName = ""
 
         multipart.forEachPart { part ->
@@ -43,14 +43,14 @@ fun Route.recognizeRoute(uploadDir: File) {
         val songUrl = "http://copycheck.herokuapp.com/music/$receivedFileName"
 
         println("SONG_URL: $songUrl")
-        println("EXISTS: ${receivedFile!!.exists()}")
-        println("FILES_1: ${uploadDir.listFiles().joinToString(" | ") { it.name }}")
+        println("EXISTS: ${receivedFile.exists()}")
+        println("FILES: ${uploadDir.listFiles().joinToString(" | ") { it.name }}")
 
 
-        call.respond(recognizeSong(songUrl))
+        call.respond(recognizeSong(receivedFile))
 
         println("FILES_2: ${uploadDir.listFiles().joinToString(" | ") { it.name }}")
-        receivedFile!!.delete()
+        receivedFile.delete()
         println("FILES_3: ${uploadDir.listFiles().joinToString(" | ") { it.name }}")
     }
 }
