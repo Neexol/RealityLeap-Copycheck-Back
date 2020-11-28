@@ -7,6 +7,7 @@ import io.ktor.http.content.*
 import io.ktor.routing.*
 import io.ktor.util.*
 import io.ktor.utils.io.errors.*
+import ru.rtuitlab.copycheck.routes.recognizeRoute
 import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
