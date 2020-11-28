@@ -39,7 +39,7 @@ fun parseRao(song: SongData, url: String): CopyrightResult {
             RaoSearchResult(
                 list[1],
                 list[2],
-                list.subList(2, list.size - 1).joinToString(", ")
+                list.subList(3, list.size - 1).joinToString(", ")
             )
         }
     }
