@@ -1,6 +1,7 @@
 package ru.rtuitlab.copycheck
 
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -8,11 +9,19 @@ import io.ktor.routing.*
 import io.ktor.util.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import ru.rtuitlab.copycheck.copyright.*
+import ru.rtuitlab.copycheck.models.RecognitionResult
+import ru.rtuitlab.copycheck.models.SongData
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
+import java.lang.Integer.max
 
 @InternalAPI
 fun Route.recognizeRoute(uploadDir: File) {
@@ -36,8 +45,13 @@ fun Route.recognizeRoute(uploadDir: File) {
             }
             part.dispose()
         }
-        call.respond(recognizeSong(receivedFile))
+
+        val recognitionResult = recognizeSong(receivedFile)
         receivedFile.delete()
+
+        recognitionResult.result?.let {
+            call.respond(checkCopyright(recognitionResult))
+        } ?: call.respond(HttpStatusCode.NotFound)
     }
 }
 
@@ -64,3 +78,20 @@ suspend fun InputStream.copyToSuspend(
         return@withContext bytesCopied
     }
 }
+
+suspend fun checkCopyright(recognitionResult: RecognitionResult): CopycheckResult {
+    val russianResultFlow = flowOf(parseRao(recognitionResult.result!!, RAO_RUSSIAN_URL))
+    val foreignResultFlow = flowOf(parseRao(recognitionResult.result, RAO_FOREIGN_URL))
+    val appleResultFlow = flowOf(parseAudD(recognitionResult.result))
+
+    return russianResultFlow.zip(foreignResultFlow) { result1, result2 ->
+        result1.zip(result2)
+    }.zip(appleResultFlow) { copyrightResult, appleResult ->
+        CopycheckResult(recognitionResult, copyrightResult, appleResult)
+    }.first()
+}
+
+fun CopyrightResult.zip(copyrightResult: CopyrightResult) = CopyrightResult(
+    max(this.resultStatus, copyrightResult.resultStatus),
+    this.data + copyrightResult.data
+)
