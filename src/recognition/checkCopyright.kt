@@ -23,12 +23,12 @@ suspend fun checkCopyright(recognitionResult: RecognitionResult): CopycheckResul
     }.first()
 }
 
-fun CopyrightResult.zip(copyrightResult: CopyrightResult) = CopyrightResult(
+private fun CopyrightResult.zip(copyrightResult: CopyrightResult) = CopyrightResult(
         Integer.max(this.resultStatus, copyrightResult.resultStatus),
         this.data + copyrightResult.data
 )
 
-fun parseAudD(song: SongData): AppleResult? {
+private fun parseAudD(song: SongData): AppleResult? {
     val appleMusic = Jsoup.connect(song.songLink).get()
         .select(".service a[data-uri*=\"music.apple\"]")
         .attr("href")
@@ -40,7 +40,7 @@ fun parseAudD(song: SongData): AppleResult? {
     )
 }
 
-fun parseRao(song: SongData, url: String): CopyrightResult {
+private fun parseRao(song: SongData, url: String): CopyrightResult {
     val selectTd = ".search-result-reestr tr:not(:first-of-type) td"
     val maxPage = { doc: Document ->
         doc.select(".pagination a:last-of-type").html().toIntOrNull() ?: 0
@@ -58,7 +58,7 @@ fun parseRao(song: SongData, url: String): CopyrightResult {
             RaoSearchResult(
                 list[1],
                 list[2],
-                list.subList(2, list.size - 1).joinToString(", ")
+                list.subList(3, list.size - 1).joinToString(", ")
             )
         }
     }
