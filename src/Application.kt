@@ -29,7 +29,7 @@ fun Application.module() {
 
     routing {
         recognizeRoute(uploadDir)
-        static {
+        static("/music") {
             resources("music")
         }
     }

@@ -40,7 +40,11 @@ fun Route.recognizeRoute(uploadDir: File) {
             part.dispose()
         }
 
-        call.respondText(recognizeSong(receivedFile!!))
+        val songUrl = "https://copycheck.herokuapp.com/$receivedFileName"
+
+        call.respond(recognizeSong(songUrl))
+
+        receivedFile!!.delete()
     }
 }
 
