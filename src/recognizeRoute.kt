@@ -44,12 +44,14 @@ fun Route.recognizeRoute(uploadDir: File) {
 
         println("SONG_URL: $songUrl")
         println("EXISTS: ${receivedFile!!.exists()}")
-        println("FILES: ${uploadDir.listFiles().joinToString(" | ") { it.name }}")
+        println("FILES_1: ${uploadDir.listFiles().joinToString(" | ") { it.name }}")
 
 
         call.respond(recognizeSong(songUrl))
 
+        println("FILES_2: ${uploadDir.listFiles().joinToString(" | ") { it.name }}")
         receivedFile!!.delete()
+        println("FILES_3: ${uploadDir.listFiles().joinToString(" | ") { it.name }}")
     }
 }
 
